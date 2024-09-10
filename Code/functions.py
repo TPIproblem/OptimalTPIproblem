@@ -84,7 +84,7 @@ def astar(elements, element_start, num_paths, D=100):
     start_node.h = start_node.f = start_node.distance(end_node)
 
     initial_g = 2
-    g_multiplier = 2
+    g_multiplier = 3
 
     paths = []
     g_weights = {}
@@ -138,7 +138,7 @@ def astar(elements, element_start, num_paths, D=100):
                 if (
                     already_visited or
                     not current_node.connectable(element, D) or # skip not connectable elements
-                    (len(open_list)==0 and element["name"] == end_node.name) # avoid a path customer-terminal (start node - end node)
+                    (len(closed_list)==1 and element["name"] == end_node.name) # avoid a path customer-terminal (start node - end node)
                     ):
                     continue
 
@@ -240,3 +240,32 @@ def transform_matrices_in_dfs(H,T,R, Tr, P):
     P_sol.columns = list(H.index)
 
     return Tr_sol, P_sol
+
+def DiagnosticFunction(H, C, P_sol, Tr_sol):
+    number_issues = 0
+    ### 1st Check (check on each customer having a path) ###
+    print("### Cheking 1st condition: check on each customer having a path ###")
+    estimated_optimal_paths = [p for p in P_sol.columns.values if P_sol[p][0] == 1]
+
+    customers_wo_paths = set(C.name)
+    for h in estimated_optimal_paths:
+        elements = H.loc[h]
+        path_customers = [elements.index[i] for i, e in enumerate(elements[:len(C)]) if e == 1]
+        if path_customers:
+            customers_wo_paths.discard(path_customers[0])
+
+    if(customers_wo_paths):
+        number_issues +=1
+        for c in customers_wo_paths:
+            print(f"For customer: {c} was not possible to identify a path")
+    else:
+        print("No issue identified. For each customers a path was identified")("No issue identified.")
+
+    ### Final check ###
+    print("\n\n### Summary ###")
+    if(number_issues==0):
+        print("No issue identified")
+    else:
+        print(f"{number_issues} issue(s) identified")
+        
+    return customers_wo_paths

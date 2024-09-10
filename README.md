@@ -18,7 +18,7 @@ Topological path identification (TPI) is crucial for the digitalization, analysi
 
 
 ## Required Data
-The folder \Data contains all the data required to run the methodology and indentifiying the customer topological paths. \\
+The folder \Data contains all the data required to run the methodology and indentifiying the customer topological paths.  
 In paritcular the required data is:
 - the name of the elements
 - their type (customer, line, ...)

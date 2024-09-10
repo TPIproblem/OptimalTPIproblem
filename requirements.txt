@@ -6,3 +6,4 @@ geopandas
 gurobipy
 openpyxl
 scipy
+jupyter

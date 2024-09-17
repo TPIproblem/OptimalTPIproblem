@@ -31,8 +31,8 @@ To run the TPI process, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/repo-name.git
-   cd repo-name
+   git clone https://github.com/TPIproblem/OptimalTPI.git
+   cd OptimalTPI
 
 2. Install the required packages:
    ```bash

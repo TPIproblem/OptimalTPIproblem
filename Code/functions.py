@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
-from shapely import Point, LineString
 import geopandas as gpd
 import gurobipy as gp
+from shapely import Point, LineString
 from shapely import wkt
+from shapely.ops import nearest_points
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import matplotlib.colors as mcolors
 
 
 def Subset(elements, types):
@@ -22,10 +25,32 @@ def import_elements(file):
 
     return elements
 
-def visualize_elements(elements):
-    elements = elements.fillna(0)
-    elements.plot(column="terminal")
-    plt.plot()
+def visualize_elements(elements, connections=None):
+    # Define a color map based on the values in 'terminal'
+    unique_terminals = elements['terminal'].unique()
+    colors = plt.cm.get_cmap('tab20', len(unique_terminals))  # Use a colormap with a number of colors equal to unique terminals
+
+    # Create a dictionary mapping terminal values to colors
+    color_map = {terminal: colors(i) for i, terminal in enumerate(unique_terminals)}
+
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    # Plot elements with colors based on 'terminal'
+    elements['color'] = elements['terminal'].map(color_map)
+    elements.plot(ax=ax, color=elements['color'], markersize=50, label='Elements')
+
+    if(connections is not None):
+        # Plot connections
+        connections['color'] = connections['terminal'].map(color_map)
+        connections.plot(ax=ax, color=connections['color'], linestyle='--', linewidth=.5, label='Connections')
+
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Elements Plot')
+    fig.legends = []
+    plt.tight_layout()
+    plt.show()
+
 
 
 class Path:
@@ -269,3 +294,41 @@ def DiagnosticFunction(H, C, P_sol, Tr_sol):
         print(f"{number_issues} issue(s) identified")
         
     return customers_wo_paths
+
+def find_connections(elements, Tr_sol, P_sol, paths):
+    for terminal, elems in Tr_sol.iterrows():
+        for i,e in elems.items():
+            if(e==1):
+                ind = elements[elements["name"]==i].index[0]
+                elements.at[ind, 'terminal'] = terminal
+
+    connections = gpd.GeoDataFrame(columns=["from_id", "to_id", "terminal", "coor"])
+
+    estimated_optimal_paths = [p for p in P_sol.columns.values if P_sol[p][0] == 1]
+    pp = [p.get_elements_names() for p in paths]
+    estimated_optimal_paths = [pp[int(i[1:])-1] for i in estimated_optimal_paths]
+    for h in estimated_optimal_paths[:-1]:
+        for i in range(len(h)-1):
+            elem_from = elements[elements["name"]==h[i]]
+            elem_to = elements[elements["name"]==h[i+1]]
+
+            
+            coor_from = elem_from.coor.values[0]
+            coor_to = elem_to.coor.values[0]
+
+            # Calculate nearest points (if necessary, otherwise use coordinates directly)
+            nearest_point_from = nearest_points(coor_from, coor_to)[0]
+            nearest_point_to = nearest_points(coor_to, coor_from)[0]
+
+            l = LineString([nearest_point_from, nearest_point_to])
+
+            new_row = {
+                            'from_id': elem_from.name.values[0], 
+                            'to_id': elem_to.name.values[0], 
+                            'terminal': h[-1], 
+                            'coor': l
+                        }
+            new_row = gpd.GeoDataFrame([new_row])
+            connections = pd.concat([connections, new_row], ignore_index=True)
+    connections = connections.set_geometry('coor')
+    return connections

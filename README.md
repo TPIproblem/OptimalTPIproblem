@@ -2,7 +2,7 @@
 
 This repository contains the code and data used for the identification of customer topological paths in electrical distribution networks. The methodology employs geographic information system (GIS) data and integer linear programming (ILP) optimization to estimate paths from the MV/LV transformer to customers.
 
-For more detailed information, refer to the paper [here](link-to-paper).
+For more detailed information, refer to the paper [here](https://orbi.uliege.be/handle/2268/321834).
 
 ## Table of Contents
 

@@ -8,7 +8,6 @@ For more detailed information, refer to the paper [here](https://orbi.uliege.be/
 
 - [Introduction](#introduction)
 - [Required Data](#requireddata)
-- [Data](#data)
 - [Usage](#usage)
 - [Results](#results)
 
@@ -41,6 +40,20 @@ To run the TPI process, follow these steps:
 3. Run main notebook script:
    ```bash
    Optimal TPI.ipynb
+
+## Results
+<table>
+  <tr>
+     <td> Network before applying the methodology </td>
+     <td> Network after applying the methodology </td>
+  </tr>
+  <tr>
+    <td> <img src="Results/Network_before.png" width="500" /> </td>
+    <td> <img src="Results/Network_after.png" width="500" /> </td>
+  </tr>
+ </table>
+Figure above shows a part of the Belgian network considered with three MV/LV transformers, some lines, and customers.
+In the right figure it is possible to see the network after the identification of the paths: colors have been assigned to customers and lines belonging to the same feeder terminal junction. Dashed lines represent the connections between the elements, for example, customer-line connections.
 
 ***
 
